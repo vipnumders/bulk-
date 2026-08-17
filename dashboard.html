@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — BulkChat Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: { extend: {
+      colors: { wa:{DEFAULT:'#25D366',dark:'#1DA851',deep:'#075E54'}, ink:'#0B1410', paper:'#F6FAF8', bubble:'#DCF8C6' },
+      fontFamily: { display:['Sora','sans-serif'], body:['Inter','sans-serif'], mono:['JetBrains Mono','monospace'] },
+      borderRadius: { xl2:'20px' },
+      boxShadow: { soft:'0 8px 30px rgba(7,94,84,0.08)', softlg:'0 20px 60px rgba(7,94,84,0.16)' }
+    }}
+  }
+</script>
+<style>
+  body{font-family:'Inter',sans-serif;}
+  h1,h2,h3,h4{font-family:'Sora',sans-serif;}
+  .font-mono-num{font-family:'JetBrains Mono',monospace;}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+  .nav-btn.active{background:rgba(37,211,102,0.14); color:#075E54; font-weight:700;}
+  .dark .nav-btn.active{background:rgba(37,211,102,0.18); color:#25D366;}
+  .toast{transform:translateY(20px); opacity:0; transition:all .3s ease;}
+  .toast.show{transform:translateY(0); opacity:1;}
+  .grow-bar{transform:scaleY(0); transform-origin:bottom; animation:growBar .8s ease forwards;}
+  @keyframes growBar{to{transform:scaleY(1);}}
+  .dropzone.drag{border-color:#25D366; background:rgba(37,211,102,0.08);}
+  ::-webkit-scrollbar{width:10px;} ::-webkit-scrollbar-thumb{background:#BEDFD3; border-radius:10px;}
+  .dark ::-webkit-scrollbar-thumb{background:#1c3b34;}
+  @media (prefers-reduced-motion: reduce){ *{animation-duration:.001ms !important; transition-duration:.001ms !important;} }
+</style>
+</head>
+<body class="bg-paper dark:bg-[#081310] text-ink dark:text-[#EAF4F0] min-h-screen">
+
+<div id="authLoading" class="fixed inset-0 z-[100] bg-paper dark:bg-[#081310] flex items-center justify-center">
+  <div class="text-sm text-ink/50 dark:text-white/50">Checking your session…</div>
+</div>
+
+<div class="flex min-h-screen">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="hidden lg:flex flex-col w-64 shrink-0 border-r border-black/10 dark:border-white/10 bg-white dark:bg-[#0A1712] p-5">
+    <div class="flex items-center gap-2 font-display font-extrabold text-lg mb-8 px-2">
+      <span class="w-9 h-9 rounded-xl bg-gradient-to-br from-wa to-wa-deep flex items-center justify-center text-white text-base">💬</span>
+      BulkChat <span class="text-wa-dark">Pro</span>
+    </div>
+    <nav class="flex-1 space-y-1 text-sm" id="sideNav">
+      <button data-tab="bulk" class="nav-btn active w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition text-left">📤 Bulk Messaging</button>
+      <button data-tab="contacts" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition text-left">📇 Contact Upload</button>
+      <button data-tab="campaigns" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition text-left">🗂️ Campaigns</button>
+      <button data-tab="templates" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition text-left">📝 Templates</button>
+      <button data-tab="media" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition text-left">🖼️ Media</button>
+      <button data-tab="delivery" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition text-left">✅ Delivery Reports</button>
+      <button data-tab="read" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition text-left">👁️ Read Reports</button>
+      <button data-tab="users" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition text-left">👥 Users</button>
+      <button data-tab="api" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition text-left">🔌 API</button>
+      <button data-tab="analytics" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition text-left">📊 Analytics</button>
+      <button data-tab="settings" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition text-left">⚙️ Settings</button>
+      <button data-tab="wallet" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition text-left">💰 Wallet</button>
+    </nav>
+    <div class="border-t border-black/10 dark:border-white/10 pt-4 mt-4">
+      <div class="flex items-center gap-2 px-2 mb-3">
+        <img id="userPhoto" class="w-8 h-8 rounded-full object-cover hidden" alt="">
+        <div id="userInitial" class="w-8 h-8 rounded-full bg-bubble dark:bg-wa-deep/25 grid place-items-center font-bold text-wa-deep dark:text-wa text-xs">D</div>
+        <div class="text-xs">
+          <div class="font-semibold" id="userName">—</div>
+          <div class="text-ink/40 dark:text-white/40" id="userEmail">—</div>
+        </div>
+      </div>
+      <button id="logoutBtn" class="w-full text-sm text-left px-3 py-2 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition">↩ Log out</button>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="flex-1 min-w-0">
+    <!-- topbar -->
+    <header class="sticky top-0 z-30 bg-white/80 dark:bg-[#081310]/80 backdrop-blur border-b border-black/10 dark:border-white/10 px-6 py-4 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <button id="mobileNavToggle" class="lg:hidden text-xl">☰</button>
+        <h1 class="font-display font-bold text-lg" id="pageTitle">Bulk Messaging</h1>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="themeToggle" class="w-9 h-9 rounded-full grid place-items-center border border-black/10 dark:border-white/15 hover:bg-black/5 dark:hover:bg-white/10 transition"><span id="themeIcon">🌙</span></button>
+      </div>
+    </header>
+
+    <!-- mobile nav -->
+    <div id="mobileNav" class="hidden lg:hidden flex-wrap gap-2 p-4 border-b border-black/10 dark:border-white/10">
+      <button data-tab="bulk" class="nav-btn active text-xs px-3 py-2 rounded-full border border-black/10 dark:border-white/15">📤 Bulk</button>
+      <button data-tab="contacts" class="nav-btn text-xs px-3 py-2 rounded-full border border-black/10 dark:border-white/15">📇 Contacts</button>
+      <button data-tab="campaigns" class="nav-btn text-xs px-3 py-2 rounded-full border border-black/10 dark:border-white/15">🗂️ Campaigns</button>
+      <button data-tab="templates" class="nav-btn text-xs px-3 py-2 rounded-full border border-black/10 dark:border-white/15">📝 Templates</button>
+      <button data-tab="media" class="nav-btn text-xs px-3 py-2 rounded-full border border-black/10 dark:border-white/15">🖼️ Media</button>
+      <button data-tab="delivery" class="nav-btn text-xs px-3 py-2 rounded-full border border-black/10 dark:border-white/15">✅ Delivery</button>
+      <button data-tab="read" class="nav-btn text-xs px-3 py-2 rounded-full border border-black/10 dark:border-white/15">👁️ Read</button>
+      <button data-tab="users" class="nav-btn text-xs px-3 py-2 rounded-full border border-black/10 dark:border-white/15">👥 Users</button>
+      <button data-tab="api" class="nav-btn text-xs px-3 py-2 rounded-full border border-black/10 dark:border-white/15">🔌 API</button>
+      <button data-tab="analytics" class="nav-btn text-xs px-3 py-2 rounded-full border border-black/10 dark:border-white/15">📊 Analytics</button>
+      <button data-tab="settings" class="nav-btn text-xs px-3 py-2 rounded-full border border-black/10 dark:border-white/15">⚙️ Settings</button>
+      <button data-tab="wallet" class="nav-btn text-xs px-3 py-2 rounded-full border border-black/10 dark:border-white/15">💰 Wallet</button>
+    </div>
+
+    <main class="p-6 max-w-6xl">
+
+      <!-- ============ BULK MESSAGING ============ -->
+      <section class="tab-panel active" id="panel-bulk">
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="rounded-xl2 bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 p-6 shadow-soft">
+            <h2 class="font-display font-bold text-lg mb-4">Compose campaign</h2>
+            <label class="text-sm font-medium block mb-1.5">Template</label>
+            <select id="bulkTemplate" class="w-full px-4 py-2.5 rounded-lg border border-black/10 dark:border-white/15 bg-transparent mb-4">
+              <option>Order Shipped</option>
+              <option>Appointment Reminder</option>
+              <option>Flash Sale</option>
+              <option>Blank message</option>
+            </select>
+            <label class="text-sm font-medium block mb-1.5">Message</label>
+            <textarea id="bulkMessage" rows="4" class="w-full px-4 py-2.5 rounded-lg border border-black/10 dark:border-white/15 bg-transparent mb-2">Hi {{name}}, your order {{order}} has shipped and arrives {{date}} 🚚</textarea>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <button type="button" class="var-btn text-xs font-mono-num bg-black/5 dark:bg-white/10 px-2 py-1 rounded" data-var="{{name}}">+{{name}}</button>
+              <button type="button" class="var-btn text-xs font-mono-num bg-black/5 dark:bg-white/10 px-2 py-1 rounded" data-var="{{order}}">+{{order}}</button>
+              <button type="button" class="var-btn text-xs font-mono-num bg-black/5 dark:bg-white/10 px-2 py-1 rounded" data-var="{{date}}">+{{date}}</button>
+            </div>
+            <label class="text-sm font-medium block mb-1.5">Audience</label>
+            <select id="bulkAudience" class="w-full px-4 py-2.5 rounded-lg border border-black/10 dark:border-white/15 bg-transparent mb-2">
+              <option>All imported contacts</option>
+            </select>
+            <p class="text-xs text-ink/50 dark:text-white/50 mb-4"><span id="audienceCount" class="font-mono-num font-semibold">0</span> contacts imported <span id="noContactsNote" class="text-amber-600 dark:text-amber-400">— go to Contact Upload first</span></p>
+            <label class="text-sm font-medium block mb-1.5">Send throttle: <span id="throttleVal" class="font-mono-num text-wa-dark">40</span> msgs/sec</label>
+            <input id="throttleRange" type="range" min="5" max="100" value="40" class="w-full mb-5 accent-wa">
+            <button id="sendCampaignBtn" class="w-full py-3 rounded-full font-semibold text-white bg-wa hover:bg-wa-dark shadow-lg shadow-wa/30 transition">Send Campaign</button>
+          </div>
+
+          <div class="rounded-xl2 bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 p-6 shadow-soft">
+            <h2 class="font-display font-bold text-lg mb-4">Live preview & queue</h2>
+            <div class="bg-bubble/60 dark:bg-wa-deep/20 rounded-xl p-4 mb-5">
+              <p class="text-xs text-ink/50 dark:text-white/50 mb-1">Sample preview (using placeholder values)</p>
+              <p class="text-sm" id="livePreviewText">Hi {{name}}, your order {{order}} has shipped and arrives {{date}} 🚚</p>
+            </div>
+            <div class="flex items-center gap-3 bg-black/[0.03] dark:bg-white/5 rounded-xl px-4 py-3 mb-2">
+              <span class="text-xs font-bold text-ink/50 dark:text-white/50">Queue progress</span>
+              <span class="font-mono-num font-bold text-wa-dark ml-auto" id="queueSent">0</span>
+              <span class="text-xs text-ink/40 dark:text-white/40">/ <span id="queueTotal">0</span></span>
+            </div>
+            <div class="w-full h-2.5 rounded-full bg-black/5 dark:bg-white/10 overflow-hidden mb-1">
+              <div id="queueBar" class="h-full bg-gradient-to-r from-wa-deep to-wa rounded-full" style="width:0%"></div>
+            </div>
+            <p class="text-xs text-ink/40 dark:text-white/40" id="queueStatus">Idle — import contacts, then press Send Campaign</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ CONTACT UPLOAD ============ -->
+      <section class="tab-panel" id="panel-contacts">
+        <div class="rounded-xl2 bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 p-6 shadow-soft mb-6">
+          <h2 class="font-display font-bold text-lg mb-2">Import contacts</h2>
+          <p class="text-sm text-ink/60 dark:text-white/60 mb-4">Upload a CSV — we'll auto-map fields and show a preview below.</p>
+          <label id="csvDrop" class="dropzone flex flex-col items-center justify-center gap-2 border-2 border-dashed border-black/15 dark:border-white/15 rounded-xl p-8 cursor-pointer text-center transition">
+            <span class="text-2xl">📇</span>
+            <span class="text-sm font-semibold">Click to choose a CSV file</span>
+            <span class="text-xs text-ink/40 dark:text-white/40">Columns: name, phone, order, date</span>
+            <input type="file" id="csvInput" accept=".csv" class="hidden">
+          </label>
+          <p class="text-xs text-ink/50 dark:text-white/50 mt-3" id="csvStatus"></p>
+        </div>
+        <div class="rounded-xl2 bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 p-6 shadow-soft overflow-x-auto">
+          <h3 class="font-display font-bold mb-3">Preview & field mapping</h3>
+          <table class="w-full text-sm min-w-[500px]">
+            <thead><tr class="text-left text-ink/40 dark:text-white/40 text-xs uppercase">
+              <th class="pb-2">Name</th><th class="pb-2">Phone</th><th class="pb-2">Order</th><th class="pb-2">Date</th>
+            </tr></thead>
+            <tbody id="csvPreviewBody" class="divide-y divide-black/5 dark:divide-white/10">
+              <tr><td colspan="4" class="py-6 text-center text-ink/40 dark:text-white/40">No contacts imported yet. Upload a CSV above to see a preview.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============ CAMPAIGNS ============ -->
+      <section class="tab-panel" id="panel-campaigns">
+        <div class="flex items-center justify-between gap-4 mb-4">
+          <input id="campaignSearch" type="text" placeholder="Search campaigns…" class="px-4 py-2.5 rounded-lg border border-black/10 dark:border-white/15 bg-transparent w-full max-w-xs">
+          <button id="newCampaignBtn" class="px-5 py-2.5 rounded-full font-semibold text-white bg-wa hover:bg-wa-dark whitespace-nowrap transition">+ New Campaign</button>
+        </div>
+        <div class="rounded-xl2 bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 shadow-soft overflow-x-auto">
+          <table class="w-full text-sm min-w-[640px]">
+            <thead><tr class="text-left text-ink/40 dark:text-white/40 text-xs uppercase">
+              <th class="p-4">Campaign</th><th class="p-4">Sent</th><th class="p-4">Delivered</th><th class="p-4">Status</th><th class="p-4">Actions</th>
+            </tr></thead>
+            <tbody id="campaignBody" class="divide-y divide-black/5 dark:divide-white/10">
+              <tr><td colspan="5" class="p-6 text-center text-ink/40 dark:text-white/40">No campaigns yet. Click "+ New Campaign" to create one.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============ TEMPLATES ============ -->
+      <section class="tab-panel" id="panel-templates">
+        <div class="grid lg:grid-cols-3 gap-6">
+          
+          <!-- Saved Templates Column -->
+          <div class="rounded-xl2 bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 p-6 shadow-soft flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="font-display font-bold text-lg">Saved templates</h2>
+              <span class="text-xs text-ink/40 dark:text-white/40 font-mono-num" id="tplCountLabel">3 templates</span>
+            </div>
+            <div class="space-y-3 flex-1 overflow-y-auto max-h-[440px] pr-1" id="tplList">
+              <div class="tpl-card border border-wa/40 dark:border-wa/40 rounded-xl p-3.5 hover:border-wa cursor-pointer transition bg-wa/5 dark:bg-wa/10" data-name="Order Shipped" data-body="Hi {{name}}, your order {{order}} has shipped and arrives {{date}} 🚚">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="font-semibold text-sm text-wa-dark dark:text-wa">Order Shipped</span>
+                  <span class="text-[10px] bg-wa/20 text-wa-deep dark:text-wa px-2 py-0.5 rounded-full font-medium">Click to load</span>
+                </div>
+                <p class="text-xs text-ink/60 dark:text-white/60 line-clamp-2">Hi {{name}}, your order {{order}} has shipped and arrives {{date}} 🚚</p>
+              </div>
+              <div class="tpl-card border border-black/10 dark:border-white/10 rounded-xl p-3.5 hover:border-wa cursor-pointer transition bg-black/[0.01] dark:bg-white/[0.02]" data-name="Appointment Reminder" data-body="Reminder: Hi {{name}}, your appointment is scheduled for {{date}}. Reply YES to confirm.">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="font-semibold text-sm text-wa-dark dark:text-wa">Appointment Reminder</span>
+                  <span class="text-[10px] bg-black/5 dark:bg-white/10 px-2 py-0.5 rounded-full font-medium">Click to load</span>
+                </div>
+                <p class="text-xs text-ink/60 dark:text-white/60 line-clamp-2">Reminder: Hi {{name}}, your appointment is scheduled for {{date}}. Reply YES to confirm.</p>
+              </div>
+              <div class="tpl-card border border-black/10 dark:border-white/10 rounded-xl p-3.5 hover:border-wa cursor-pointer transition bg-black/[0.01] dark:bg-white/[0.02]" data-name="Flash Sale Promo" data-body="🔥 Flash Sale Alert! Hi {{name}}, use code {{order}} to get 20% off until {{date}}!">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="font-semibold text-sm text-wa-dark dark:text-wa">Flash Sale Promo</span>
+                  <span class="text-[10px] bg-black/5 dark:bg-white/10 px-2 py-0.5 rounded-full font-medium">Click to load</span>
+                </div>
+                <p class="text-xs text-ink/60 dark:text-white/60 line-clamp-2">🔥 Flash Sale Alert! Hi {{name}}, use code {{order}} to get 20% off until {{date}}!</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Template Editor Column -->
+          <div class="rounded-xl2 bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 p-6 shadow-soft flex flex-col justify-between">
+            <div>
+              <h2 class="font-display font-bold text-lg mb-4">Template Editor</h2>
+              <label class="text-xs font-semibold text-ink/60 dark:text-white/60 uppercase tracking-wider block mb-1.5">Template Name</label>
+              <input id="tplName" type="text" placeholder="e.g. Order Shipped" value="Order Shipped" class="w-full px-4 py-2.5 rounded-lg border border-black/10 dark:border-white/15 bg-transparent mb-4 focus:ring-2 focus:ring-wa">
+              
+              <label class="text-xs font-semibold text-ink/60 dark:text-white/60 uppercase tracking-wider block mb-1.5">Message Content</label>
+              <textarea id="tplEditor" rows="5" placeholder="Hi {{name}}, ..." class="w-full px-4 py-2.5 rounded-lg border border-black/10 dark:border-white/15 bg-transparent mb-2 focus:ring-2 focus:ring-wa font-body text-sm leading-relaxed">Hi {{name}}, your order {{order}} has shipped and arrives {{date}} 🚚</textarea>
+              
+              <div class="mb-5">
+                <span class="text-[11px] text-ink/40 dark:text-white/40 block mb-1.5">Insert dynamic variables:</span>
+                <div class="flex flex-wrap gap-2">
+                  <button type="button" class="tpl-var-btn text-xs font-mono-num bg-black/5 dark:bg-white/10 hover:bg-wa/20 hover:text-wa-dark px-2.5 py-1 rounded-md transition" data-var="{{name}}">+{{name}}</button>
+                  <button type="button" class="tpl-var-btn text-xs font-mono-num bg-black/5 dark:bg-white/10 hover:bg-wa/20 hover:text-wa-dark px-2.5 py-1 rounded-md transition" data-var="{{order}}">+{{order}}</button>
+                  <button type="button" class="tpl-var-btn text-xs font-mono-num bg-black/5 dark:bg-white/10 hover:bg-wa/20 hover:text-wa-dark px-2.5 py-1 rounded-md transition" data-var="{{date}}">+{{date}}</button>
+                </div>
+              </div>
+            </div>
+
+            <button id="saveTplBtn" class="w-full py-3 rounded-full font-semibold text-white bg-wa hover:bg-wa-dark shadow-md shadow-wa/20 transition flex items-center justify-center gap-2">
+              💾 Save Template
+            </button>
+          </div>
+
+          <!-- Customer Phone Live Preview Column -->
+          <div class="rounded-xl2 bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 p-5 shadow-soft flex flex-col items-center justify-between">
+            <div class="w-full flex items-center justify-between mb-3">
+              <div>
+                <h2 class="font-display font-bold text-lg">Customer View</h2>
+                <p class="text-xs text-ink/50 dark:text-white/50">How it appears on customer's phone</p>
+              </div>
+              <span class="text-xs px-2.5 py-1 rounded-full bg-wa/15 text-wa-dark font-semibold">Live WhatsApp Preview</span>
+            </div>
+
+            <!-- Smartphone Frame Mockup -->
+            <div class="w-full max-w-[310px] rounded-[26px] overflow-hidden border-[6px] border-slate-800 dark:border-slate-700 shadow-xl bg-[#E5DDD5] dark:bg-[#0B141A] text-slate-800 dark:text-slate-100 flex flex-col font-sans">
+              <!-- Phone Status / WhatsApp Top Header -->
+              <div class="bg-[#075E54] dark:bg-[#1F2C34] text-white px-3 py-2 flex items-center gap-2 shadow-xs">
+                <div class="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center font-bold text-xs">💬</div>
+                <div class="flex-1 min-w-0">
+                  <div class="font-semibold text-xs truncate">Your Business</div>
+                  <div class="text-[9px] text-white/75">WhatsApp Business Account</div>
+                </div>
+                <div class="flex items-center gap-2 text-xs text-white/80">
+                  <span>📹</span><span>📞</span><span>⋮</span>
+                </div>
+              </div>
+
+              <!-- Phone Chat Message Wallpaper Area -->
+              <div class="p-3 min-h-[230px] flex flex-col justify-end gap-2 bg-[radial-gradient(#0000000a_1px,transparent_1px)] dark:bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:12px_12px]">
+                <div class="self-center bg-white/80 dark:bg-slate-800/80 backdrop-blur text-[9px] px-2.5 py-0.5 rounded-full text-slate-600 dark:text-slate-300 font-medium shadow-2xs">
+                  TODAY
+                </div>
+
+                <!-- Customer Incoming WhatsApp Message Bubble -->
+                <div class="self-start max-w-[92%] bg-white dark:bg-[#202C33] rounded-xl rounded-tl-none p-3 shadow-xs text-xs text-slate-800 dark:text-slate-100 border border-black/5 dark:border-white/5">
+                  <div id="customerTplPreviewText" class="whitespace-pre-wrap leading-relaxed text-[11.5px] font-normal">
+                    Hi Alex, your order #9842 has shipped and arrives Tomorrow 🚚
+                  </div>
+                  <div class="flex items-center justify-end gap-1 text-[8.5px] text-slate-400 dark:text-slate-400 mt-1">
+                    <span id="customerTplTime">10:42 AM</span>
+                    <span class="text-sky-500 font-bold">✓✓</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Phone Bottom WhatsApp Chat Bar -->
+              <div class="bg-[#F0F2F5] dark:bg-[#1F2C34] px-2.5 py-2 flex items-center gap-2 text-slate-400 border-t border-black/5 dark:border-white/5">
+                <span class="text-xs">😊</span>
+                <div class="flex-1 bg-white dark:bg-[#2A3942] rounded-full px-3 py-1 text-[10px] text-slate-400">
+                  Type a message
+                </div>
+                <div class="w-5 h-5 rounded-full bg-[#00A884] text-white flex items-center justify-center text-[9px]">
+                  🎙️
+                </div>
+              </div>
+            </div>
+
+            <div class="text-[11px] text-ink/50 dark:text-white/50 text-center mt-3 bg-black/5 dark:bg-white/5 px-3 py-1.5 rounded-lg w-full">
+              Sample data: <span class="font-semibold text-wa-dark dark:text-wa">Alex</span> (name), <span class="font-semibold text-wa-dark dark:text-wa">#9842</span> (order), <span class="font-semibold text-wa-dark dark:text-wa">Tomorrow</span> (date)
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ============ MEDIA ============ -->
+      <section class="tab-panel" id="panel-media">
+        <div class="rounded-xl2 bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 p-6 shadow-soft mb-6">
+          <h2 class="font-display font-bold text-lg mb-2">Media attachments</h2>
+          <label id="mediaDrop" class="dropzone flex flex-col items-center justify-center gap-2 border-2 border-dashed border-black/15 dark:border-white/15 rounded-xl p-10 cursor-pointer text-center transition">
+            <span class="text-2xl">🖼️</span>
+            <span class="text-sm font-semibold">Drag & drop, or click to upload</span>
+            <span class="text-xs text-ink/40 dark:text-white/40">Images, PDFs, videos</span>
+            <input type="file" id="mediaInput" accept="image/*,application/pdf,video/*" multiple class="hidden">
+          </label>
+        </div>
+        <div id="mediaGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-4"></div>
+      </section>
+
+      <!-- ============ DELIVERY REPORTS ============ -->
+      <section class="tab-panel" id="panel-delivery">
+        <div class="grid sm:grid-cols-3 gap-4 mb-6">
+          <div class="rounded-xl2 bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 p-5 shadow-soft"><div class="text-xs text-ink/50 dark:text-white/50 mb-1">Sent</div><div class="font-mono-num text-2xl font-bold">0</div></div>
+          <div class="rounded-xl2 bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 p-5 shadow-soft"><div class="text-xs text-ink/50 dark:text-white/50 mb-1">Delivered</div><div class="font-mono-num text-2xl font-bold text-wa-dark">0</div></div>
+          <div class="rounded-xl2 bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 p-5 shadow-soft"><div class="text-xs text-ink/50 dark:text-white/50 mb-1">Failed</div><div class="font-mono-num text-2xl font-bold text-red-500">0</div></div>
+        </div>
+        <div class="flex gap-2 mb-4" id="deliveryFilters">
+          <button data-f="all" class="dfilter active text-xs font-semibold px-3 py-1.5 rounded-full bg-wa/15 text-wa-deep dark:text-wa">All</button>
+          <button data-f="delivered" class="dfilter text-xs font-semibold px-3 py-1.5 rounded-full border border-black/10 dark:border-white/15">Delivered</button>
+          <button data-f="failed" class="dfilter text-xs font-semibold px-3 py-1.5 rounded-full border border-black/10 dark:border-white/15">Failed</button>
+        </div>
+        <div class="rounded-xl2 bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 shadow-soft overflow-x-auto">
+          <table class="w-full text-sm min-w-[500px]">
+            <thead><tr class="text-left text-ink/40 dark:text-white/40 text-xs uppercase"><th class="p-4">Contact</th><th class="p-4">Phone</th><th class="p-4">Status</th><th class="p-4">Time</th></tr></thead>
+            <tbody id="deliveryBody" data-empty="true" class="divide-y divide-black/5 dark:divide-white/10">
+              <tr><td colspan="4" class="p-6 text-center text-ink/40 dark:text-white/40">No delivery data yet. Send a campaign to see results here.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============ READ REPORTS ============ -->
+      <section class="tab-panel" id="panel-read">
+        <div class="grid sm:grid-cols-2 gap-4 mb-6">
+          <div class="rounded-xl2 bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 p-5 shadow-soft"><div class="text-xs text-ink/50 dark:text-white/50 mb-1">Read</div><div class="font-mono-num text-2xl font-bold text-sky-500">0</div></div>
+          <div class="rounded-xl2 bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 p-5 shadow-soft"><div class="text-xs text-ink/50 dark:text-white/50 mb-1">Read rate</div><div class="font-mono-num text-2xl font-bold text-sky-500">—</div></div>
+        </div>
+        <div class="rounded-xl2 bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 shadow-soft overflow-x-auto">
+          <table class="w-full text-sm min-w-[500px]">
+            <thead><tr class="text-left text-ink/40 dark:text-white/40 text-xs uppercase"><th class="p-4">Contact</th><th class="p-4">Message</th><th class="p-4">Status</th><th class="p-4">Read at</th></tr></thead>
+            <tbody class="divide-y divide-black/5 dark:divide-white/10">
+              <tr><td colspan="4" class="p-6 text-center text-ink/40 dark:text-white/40">No read receipts yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============ USERS ============ -->
+      <section class="tab-panel" id="panel-users">
+        <div class="grid lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 rounded-xl2 bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 shadow-soft overflow-x-auto">
+            <table class="w-full text-sm min-w-[420px]">
+              <thead><tr class="text-left text-ink/40 dark:text-white/40 text-xs uppercase"><th class="p-4">Name</th><th class="p-4">Role</th><th class="p-4"></th></tr></thead>
+              <tbody id="usersBody" class="divide-y divide-black/5 dark:divide-white/10">
+                <tr><td class="p-4 font-medium" id="ownerRowName">—</td><td class="p-4"><select class="text-sm bg-transparent border border-black/10 dark:border-white/15 rounded-lg px-2 py-1"><option>Owner</option></select></td><td class="p-4"></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="rounded-xl2 bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 p-6 shadow-soft">
+            <h3 class="font-display font-bold mb-3">Invite teammate</h3>
+            <input id="inviteEmail" type="email" placeholder="teammate@company.com" class="w-full px-4 py-2.5 rounded-lg border border-black/10 dark:border-white/15 bg-transparent mb-3">
+            <select id="inviteRole" class="w-full px-4 py-2.5 rounded-lg border border-black/10 dark:border-white/15 bg-transparent mb-4">
+              <option>Member</option><option>Campaigns</option><option>Billing</option><option>Reports</option><option>Admin</option>
+            </select>
+            <button id="inviteBtn" class="w-full py-2.5 rounded-full font-semibold text-white bg-wa hover:bg-wa-dark transition">Send Invite</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ API ============ -->
+      <section class="tab-panel" id="panel-api">
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="rounded-xl2 bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 p-6 shadow-soft">
+            <h2 class="font-display font-bold text-lg mb-4">API key</h2>
+            <div class="flex items-center gap-2 bg-black/5 dark:bg-white/10 rounded-lg px-3 py-2.5 mb-3">
+              <code class="font-mono-num text-xs flex-1 truncate text-ink/40 dark:text-white/40" id="apiKeyText">No API key yet</code>
+              <button id="apiKeyShow" class="text-xs font-semibold text-ink/30 dark:text-white/30 cursor-not-allowed" disabled>Show</button>
+              <button id="apiKeyCopy" class="text-xs font-semibold text-ink/30 dark:text-white/30 cursor-not-allowed" disabled>Copy</button>
+            </div>
+            <p class="text-xs text-amber-600 dark:text-amber-400 mb-6">API keys require a backend service to issue and manage them — this UI is ready to display one once you connect one.</p>
+            <label class="text-sm font-medium block mb-1.5">Webhook URL</label>
+            <input type="url" placeholder="https://yourcrm.com/webhooks/bulkchat" class="w-full px-4 py-2.5 rounded-lg border border-black/10 dark:border-white/15 bg-transparent">
+          </div>
+          <div class="rounded-xl2 bg-[#0B1410] text-white p-6 shadow-soft overflow-x-auto">
+            <p class="text-xs text-white/40 mb-2">Example request format</p>
+            <pre class="font-mono-num text-xs leading-relaxed"><code><span class="text-wa">POST</span> /v1/campaigns/send
+Authorization: Bearer YOUR_API_KEY
+
+{
+  "template": "order_shipped",
+  "to": "+1XXXXXXXXXX",
+  "variables": { "name": "Customer Name", "order": "#0000", "date": "YYYY-MM-DD" }
+}</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ANALYTICS ============ -->
+      <section class="tab-panel" id="panel-analytics">
+        <div class="grid sm:grid-cols-3 gap-4 mb-6">
+          <div class="rounded-xl2 bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 p-5 shadow-soft"><div class="text-xs text-ink/50 dark:text-white/50 mb-1">Delivery rate</div><div class="font-mono-num text-2xl font-bold text-wa-dark">—</div></div>
+          <div class="rounded-xl2 bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 p-5 shadow-soft"><div class="text-xs text-ink/50 dark:text-white/50 mb-1">Read rate</div><div class="font-mono-num text-2xl font-bold text-sky-500">—</div></div>
+          <div class="rounded-xl2 bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 p-5 shadow-soft"><div class="text-xs text-ink/50 dark:text-white/50 mb-1">Campaigns / mo</div><div class="font-mono-num text-2xl font-bold">0</div></div>
+        </div>
+        <div class="rounded-xl2 bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 p-6 shadow-soft">
+          <h3 class="font-display font-bold mb-4">Growth</h3>
+          <div class="flex items-center justify-center h-40 text-sm text-ink/40 dark:text-white/40">
+            No analytics yet — data will appear once you have active campaigns.
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SETTINGS (WhatsApp Business API) ============ -->
+      <section class="tab-panel" id="panel-settings">
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="rounded-xl2 bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 p-6 shadow-soft">
+            <div class="flex items-center justify-between mb-1">
+              <h2 class="font-display font-bold text-lg">WhatsApp Business API</h2>
+              <span id="waStatusBadge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-300">Not connected</span>
+            </div>
+            <p class="text-sm text-ink/60 dark:text-white/60 mb-5">
+              Add your Meta WhatsApp Cloud API credentials so Bulk Messaging can send real messages.
+              Get these from
+              <a href="https://developers.facebook.com/apps" target="_blank" rel="noopener" class="text-wa-deep dark:text-wa hover:underline">developers.facebook.com/apps</a>
+              → your app → WhatsApp → API Setup.
+            </p>
+
+            <label class="text-sm font-medium block mb-1.5">Phone Number ID</label>
+            <input id="waPhoneId" type="text" placeholder="e.g. 109876543210123" class="w-full px-4 py-2.5 rounded-lg border border-black/10 dark:border-white/15 bg-transparent mb-4 font-mono-num text-sm">
+
+            <label class="text-sm font-medium block mb-1.5">Access Token</label>
+            <div class="flex gap-2 mb-1">
+              <input id="waAccessToken" type="password" placeholder="EAAG..." class="flex-1 px-4 py-2.5 rounded-lg border border-black/10 dark:border-white/15 bg-transparent font-mono-num text-sm">
+              <button id="waTokenShow" type="button" class="px-3 rounded-lg border border-black/10 dark:border-white/15 text-xs font-semibold">Show</button>
+            </div>
+            <p class="text-xs text-ink/40 dark:text-white/40 mb-5">Stored in your account in Firestore, only ever read server-side by a Cloud Function — your token is never sent to or exposed in the browser.</p>
+
+            <div class="flex gap-3">
+              <button id="waSaveBtn" class="px-5 py-2.5 rounded-full font-semibold text-white bg-wa hover:bg-wa-dark transition">Save credentials</button>
+              <button id="waRemoveBtn" class="px-5 py-2.5 rounded-full font-semibold text-red-500 border border-red-200 dark:border-red-500/30 hover:bg-red-50 dark:hover:bg-red-500/10 transition">Remove</button>
+            </div>
+            <p id="waSaveMsg" class="text-sm mt-3"></p>
+          </div>
+
+          <div class="rounded-xl2 bg-[#0B1410] text-white p-6 shadow-soft">
+            <h3 class="font-display font-bold mb-3">How sending works</h3>
+            <ul class="text-sm text-white/70 space-y-3 list-disc pl-4">
+              <li>Bulk Messaging is <strong class="text-white">blocked</strong> until Phone Number ID + Access Token are saved here.</li>
+              <li>Sending goes through a Cloud Function relay, not directly from your browser — this keeps your token private and avoids CORS issues with Meta's API.</li>
+              <li>Each message costs <span class="font-mono-num">₹0.35</span> from your Wallet balance, deducted server-side and refunded automatically if the send fails.</li>
+              <li>Meta only allows free-form text to a contact within 24 hours of them messaging you first. For true cold outbound, you need an approved message template in Meta Business Manager — plain text sends outside that window will be rejected by Meta, not by this site.</li>
+              <li>Test tokens from Meta's dev dashboard usually only work for a short list of verified test numbers until your app is approved for production.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ WALLET ============ -->
+      <section class="tab-panel" id="panel-wallet">
+        <div class="grid lg:grid-cols-3 gap-6 mb-6">
+          <div class="lg:col-span-2 rounded-xl2 bg-gradient-to-br from-wa-deep to-[#053a34] text-white p-6 shadow-soft flex flex-col justify-between">
+            <div>
+              <p class="text-xs text-white/60 mb-1">Current balance</p>
+              <p class="font-mono-num font-extrabold text-4xl" id="walletBalance">—</p>
+            </div>
+            <div class="flex items-center gap-3 mt-6">
+              <button id="addFundsBtn" disabled class="px-5 py-2.5 rounded-full font-semibold bg-white/15 text-white/50 cursor-not-allowed">+ Add Funds</button>
+              <span class="text-xs text-white/50">Payment gateway not connected yet — coming soon</span>
+            </div>
+          </div>
+          <div class="rounded-xl2 bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 p-6 shadow-soft">
+            <h3 class="font-display font-bold mb-2">Cost per message</h3>
+            <p class="font-mono-num text-2xl font-bold text-wa-dark mb-2" id="costPerMsg">0.35</p>
+            <p class="text-xs text-ink/50 dark:text-white/50">Deducted automatically per successful WhatsApp send. Failed sends are refunded.</p>
+          </div>
+        </div>
+
+        <div class="rounded-xl2 bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 shadow-soft overflow-x-auto">
+          <div class="p-4 border-b border-black/5 dark:border-white/10 font-display font-bold text-sm">Transaction history</div>
+          <table class="w-full text-sm min-w-[500px]">
+            <thead><tr class="text-left text-ink/40 dark:text-white/40 text-xs uppercase"><th class="p-4">Type</th><th class="p-4">Amount</th><th class="p-4">Reason</th><th class="p-4">Date</th></tr></thead>
+            <tbody id="walletTxnBody" data-empty="true" class="divide-y divide-black/5 dark:divide-white/10">
+              <tr><td colspan="4" class="p-6 text-center text-ink/40 dark:text-white/40">No transactions yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- toast -->
+<div id="toast" class="toast fixed bottom-6 right-6 bg-ink text-white dark:bg-white dark:text-ink text-sm font-semibold px-5 py-3 rounded-xl shadow-softlg z-50"></div>
+
+<script type="module">
+  import {
+    auth, db, functions, onAuthStateChanged, signOut, ensureUserProfile,
+    doc, getDoc, setDoc, updateDoc,
+    collection, query, orderBy, onSnapshot,
+    httpsCallable
+  } from './firebase-config.js';
+
+  window.waConfig = null;        // { phoneId, token } once loaded & present
+  window.waSettingsLoaded = false;
+  let currentUserRef = null;
+
+  // Safety net: if nothing has resolved (success or error) within 8s,
+  // something is hanging silently (e.g. a network/firewall block) rather
+  // than throwing — show a message instead of an infinite spinner.
+  setTimeout(async ()=>{
+    const overlay = document.getElementById('authLoading');
+    if(!overlay || overlay.style.display === 'none' || overlay.dataset.errored) return;
+
+    let reachable = null;
+    try{
+      const ctrl = new AbortController();
+      const t = setTimeout(()=> ctrl.abort(), 3000);
+      await fetch('https://firestore.googleapis.com/', { mode: 'no-cors', signal: ctrl.signal });
+      clearTimeout(t);
+      reachable = true;
+    } catch(e){
+      reachable = false;
+    }
+
+    const diagnosis = reachable
+      ? "firestore.googleapis.com is reachable from your browser, so this is more likely a Firestore/project configuration issue than a network block — double check the Firestore database region finished provisioning, and that the project ID in firebase-config.js exactly matches your Firebase project."
+      : "firestore.googleapis.com could NOT be reached at all from your browser just now — this confirms something (firewall, antivirus, DNS filter, or ISP) is blocking that specific domain. Try a phone hotspot to confirm, or check Windows Firewall / antivirus network protection settings for a block on *.googleapis.com.";
+
+    overlay.innerHTML = `<div class="max-w-md text-center px-6">
+      <p class="text-red-500 font-semibold mb-2">This is taking much longer than it should.</p>
+      <p class="text-xs text-ink/50 dark:text-white/50 mb-4">No response from Firebase after 8 seconds, and no error was thrown.</p>
+      <p class="text-xs text-ink/40 dark:text-white/40">${diagnosis}</p>
+    </div>`;
+  }, 8000);
+
+  function setWaBadge(connected){
+    const badge = document.getElementById('waStatusBadge');
+    badge.textContent = connected ? 'Connected' : 'Not connected';
+    badge.className = connected
+      ? 'text-xs font-bold px-2.5 py-1 rounded-full bg-bubble text-wa-deep dark:bg-wa-deep/25 dark:text-wa'
+      : 'text-xs font-bold px-2.5 py-1 rounded-full bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-300';
+  }
+
+  onAuthStateChanged(auth, async (user)=>{
+    if(!user){
+      window.location.href = 'login.html';
+      return;
+    }
+    document.getElementById('userName').textContent = user.displayName || user.email || 'Signed in';
+    document.getElementById('userEmail').textContent = user.email || '';
+    document.getElementById('ownerRowName').textContent = user.displayName || user.email || 'Signed in';
+    if(user.photoURL){
+      const img = document.getElementById('userPhoto');
+      img.src = user.photoURL;
+      img.classList.remove('hidden');
+      document.getElementById('userInitial').classList.add('hidden');
+    } else {
+      document.getElementById('userInitial').textContent = (user.displayName || user.email || 'D')[0].toUpperCase();
+    }
+
+    // Hide auth loading overlay IMMEDIATELY so dashboard renders instantly without waiting for network calls
+    const loadingOverlay = document.getElementById('authLoading');
+    if(loadingOverlay) loadingOverlay.style.display = 'none';
+
+    // Perform profile sync & settings loading asynchronously in background
+    (async () => {
+      try{
+        currentUserRef = await ensureUserProfile(user);
+        try{
+          const snapPromise = getDoc(currentUserRef);
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Settings fetch timeout')), 2000)
+          );
+          const snap = await Promise.race([snapPromise, timeoutPromise]);
+          const data = (snap && snap.exists()) ? snap.data() : {};
+          if(data.waPhoneId && data.waAccessToken){
+            window.waConfig = { phoneId: data.waPhoneId, token: data.waAccessToken };
+            document.getElementById('waPhoneId').value = data.waPhoneId;
+            document.getElementById('waAccessToken').value = data.waAccessToken;
+            setWaBadge(true);
+          } else {
+            window.waConfig = null;
+            setWaBadge(false);
+          }
+        } catch(e){
+          console.warn('Failed to load user settings snapshot:', e);
+          window.waConfig = null;
+          setWaBadge(false);
+        }
+        window.waSettingsLoaded = true;
+        if(typeof window.refreshSendButtonState === 'function') window.refreshSendButtonState();
+
+        // ---- Wallet: real-time balance + transaction history ----
+        onSnapshot(currentUserRef, (snap)=>{
+          const bal = (snap.data() || {}).walletBalance || 0;
+          const el = document.getElementById('walletBalance');
+          if(el) el.textContent = bal.toFixed(2);
+        }, (err) => console.warn('Wallet balance snapshot listener notice:', err));
+
+        const txnQuery = query(collection(db, 'users', user.uid, 'transactions'), orderBy('createdAt', 'desc'));
+        onSnapshot(txnQuery, (snap)=>{
+          const body = document.getElementById('walletTxnBody');
+          if(!body) return;
+          if(snap.empty){
+            body.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-ink/40 dark:text-white/40">No transactions yet.</td></tr>';
+            return;
+          }
+          body.innerHTML = snap.docs.map(d=>{
+            const t = d.data();
+            const isCredit = t.type === 'credit';
+            const when = t.createdAt && t.createdAt.toDate ? t.createdAt.toDate().toLocaleString() : '—';
+            return `<tr>
+              <td class="p-4"><span class="${isCredit ? 'text-wa-dark' : 'text-red-500'} font-semibold">${isCredit ? '+ Credit' : '− Debit'}</span></td>
+              <td class="p-4 font-mono-num">${(t.amount||0).toFixed(2)}</td>
+              <td class="p-4 text-ink/60 dark:text-white/60">${t.reason||''}</td>
+              <td class="p-4 text-ink/50 dark:text-white/50">${when}</td>
+            </tr>`;
+          }).join('');
+        }, (err) => console.warn('Transactions snapshot listener notice:', err));
+
+        // Expose the callable Cloud Function so the classic script can send real messages
+        window.sendWhatsAppMessage = httpsCallable(functions, 'sendWhatsAppMessage');
+      } catch(err){
+        console.warn('BulkChat Pro background profile sync warning:', err);
+        window.waSettingsLoaded = true;
+        if(typeof window.refreshSendButtonState === 'function') window.refreshSendButtonState();
+      }
+    })();
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', async ()=>{
+    await signOut(auth);
+    window.location.href = 'login.html';
+  });
+
+  document.getElementById('waTokenShow').addEventListener('click', function(){
+    const input = document.getElementById('waAccessToken');
+    const show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    this.textContent = show ? 'Hide' : 'Show';
+  });
+
+  document.getElementById('waSaveBtn').addEventListener('click', async ()=>{
+    const phoneId = document.getElementById('waPhoneId').value.trim();
+    const token = document.getElementById('waAccessToken').value.trim();
+    const msg = document.getElementById('waSaveMsg');
+    if(!phoneId || !token){
+      msg.textContent = 'Both fields are required.';
+      msg.className = 'text-sm mt-3 text-red-500';
+      return;
+    }
+    try{
+      await setDoc(currentUserRef, { waPhoneId: phoneId, waAccessToken: token }, { merge: true });
+      window.waConfig = { phoneId, token };
+      setWaBadge(true);
+      msg.textContent = '✓ Saved.';
+      msg.className = 'text-sm mt-3 text-wa-dark';
+      if(typeof window.refreshSendButtonState === 'function') window.refreshSendButtonState();
+    } catch(e){
+      msg.textContent = 'Failed to save: ' + e.message;
+      msg.className = 'text-sm mt-3 text-red-500';
+    }
+  });
+
+  document.getElementById('waRemoveBtn').addEventListener('click', async ()=>{
+    const msg = document.getElementById('waSaveMsg');
+    try{
+      await setDoc(currentUserRef, { waPhoneId: '', waAccessToken: '' }, { merge: true });
+      document.getElementById('waPhoneId').value = '';
+      document.getElementById('waAccessToken').value = '';
+      window.waConfig = null;
+      setWaBadge(false);
+      msg.textContent = 'Credentials removed.';
+      msg.className = 'text-sm mt-3 text-ink/50 dark:text-white/50';
+      if(typeof window.refreshSendButtonState === 'function') window.refreshSendButtonState();
+    } catch(e){
+      msg.textContent = 'Failed to remove: ' + e.message;
+      msg.className = 'text-sm mt-3 text-red-500';
+    }
+  });
+</script>
+
+<script>
+  // ---- Theme ----
+  const root = document.documentElement;
+  const themeIcon = document.getElementById('themeIcon');
+  function applyTheme(t){ root.classList.toggle('dark', t==='dark'); themeIcon.textContent = t==='dark' ? '☀️' : '🌙'; }
+  applyTheme(localStorage.getItem('bcp-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light'));
+  document.getElementById('themeToggle').addEventListener('click', ()=>{
+    const next = root.classList.contains('dark') ? 'light' : 'dark';
+    localStorage.setItem('bcp-theme', next); applyTheme(next);
+  });
+
+  // ---- Toast ----
+  function toast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(t._h); t._h = setTimeout(()=> t.classList.remove('show'), 2200);
+  }
+
+  // ---- Tab switching ----
+  const titles = {bulk:'Bulk Messaging', contacts:'Contact Upload', campaigns:'Campaign Management', templates:'Message Templates', media:'Media Attachments', delivery:'Delivery Reports', read:'Read Reports', users:'User Management', api:'API Integration', analytics:'Analytics Dashboard', settings:'Settings', wallet:'Wallet'};
+  function showTab(name){
+    document.querySelectorAll('.tab-panel').forEach(p=> p.classList.toggle('active', p.id === 'panel-'+name));
+    document.querySelectorAll('.nav-btn').forEach(b=> b.classList.toggle('active', b.dataset.tab === name));
+    document.getElementById('pageTitle').textContent = titles[name];
+    document.getElementById('mobileNav').classList.add('hidden');
+  }
+  document.querySelectorAll('.nav-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> showTab(btn.dataset.tab));
+  });
+  document.getElementById('mobileNavToggle').addEventListener('click', ()=>{
+    document.getElementById('mobileNav').classList.toggle('hidden');
+    document.getElementById('mobileNav').classList.toggle('flex');
+  });
+
+  // ---- Bulk messaging: variable insert + throttle + preview + send simulation ----
+  const bulkMsg = document.getElementById('bulkMessage');
+  const sample = {name:'[Name]', order:'[Order #]', date:'[Date]'};
+  function refreshPreview(){
+    let text = bulkMsg.value;
+    Object.keys(sample).forEach(k=> text = text.replaceAll('{{'+k+'}}', sample[k]));
+    document.getElementById('livePreviewText').textContent = text || '—';
+  }
+  bulkMsg.addEventListener('input', refreshPreview);
+  document.querySelectorAll('.var-btn').forEach(b=> b.addEventListener('click', ()=>{
+    bulkMsg.value += (bulkMsg.value.endsWith(' ')||bulkMsg.value==='' ? '' : ' ') + b.dataset.var;
+    refreshPreview();
+  }));
+  refreshPreview();
+
+  const throttleRange = document.getElementById('throttleRange');
+  throttleRange.addEventListener('input', ()=> document.getElementById('throttleVal').textContent = throttleRange.value);
+
+  function refreshSendButtonState(){
+    const btn = document.getElementById('sendCampaignBtn');
+    const blocked = contactCount === 0;
+    btn.disabled = blocked;
+    btn.classList.toggle('opacity-50', blocked);
+    btn.classList.toggle('cursor-not-allowed', blocked);
+  }
+  window.refreshSendButtonState = refreshSendButtonState;
+
+  document.getElementById('sendCampaignBtn').addEventListener('click', async ()=>{
+    if(!contactCount){ toast('Import contacts before sending a campaign'); return; }
+
+    if(!window.waSettingsLoaded){
+      toast('Still checking your API settings — try again in a moment');
+      return;
+    }
+    if(!window.waConfig){
+      toast('⚠ Add your WhatsApp Business API credentials in Settings before sending');
+      showTab('settings');
+      return;
+    }
+
+    const total = contactCount;
+    const bar = document.getElementById('queueBar');
+    const sentEl = document.getElementById('queueSent');
+    const statusEl = document.getElementById('queueStatus');
+    const deliveryBody = document.getElementById('deliveryBody');
+    // clear the empty-state row the first time a real send happens
+    if(deliveryBody.dataset.empty !== 'false'){
+      deliveryBody.innerHTML = '';
+      deliveryBody.dataset.empty = 'false';
+    }
+
+    const rawMessage = bulkMsg.value;
+    const sendBtn = document.getElementById('sendCampaignBtn');
+    sendBtn.disabled = true;
+    statusEl.textContent = 'Sending via WhatsApp Cloud API — throttled at ' + throttleRange.value + ' msgs/sec…';
+
+    const perMsgDelay = 1000 / Math.max(parseInt(throttleRange.value, 10), 1);
+    let sent = 0, delivered = 0, failed = 0;
+
+    for(const contact of importedContacts){
+      const personalized = rawMessage
+        .replaceAll('{{name}}', contact.name || '')
+        .replaceAll('{{order}}', contact.order || '')
+        .replaceAll('{{date}}', contact.date || '');
+
+      let status = 'failed', reason = '';
+      try{
+        if(typeof window.sendWhatsAppMessage !== 'function'){
+          throw new Error('Server relay not ready yet — try again in a moment');
+        }
+        const result = await window.sendWhatsAppMessage({
+          to: (contact.phone || '').replace(/[^\d]/g, ''),
+          message: personalized
+        });
+        if(result.data && result.data.ok){
+          status = 'delivered'; delivered++;
+        } else {
+          status = 'failed'; failed++;
+          reason = (result.data && result.data.error) || 'Send failed';
+        }
+      } catch(err){
+        status = 'failed'; failed++;
+        reason = (err && err.message) || 'Unknown error calling the send function';
+        if(reason.toLowerCase().includes('insufficient')){
+          // Stop the whole run — no point burning through the rest of the list
+          // with an empty wallet.
+          toast('⚠ ' + reason);
+          break;
+        }
+      }
+
+      sent++;
+      sentEl.textContent = sent.toLocaleString();
+      bar.style.width = (sent/total*100) + '%';
+
+      const row = document.createElement('tr');
+      row.dataset.status = status;
+      const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+      row.innerHTML = `<td class="p-4">${contact.name || '—'}</td><td class="p-4 font-mono-num">${contact.phone || '—'}</td><td class="p-4"></td><td class="p-4 text-ink/50 dark:text-white/50">${time}</td>`;
+      const statusCell = row.children[2];
+      if(status === 'delivered'){
+        statusCell.innerHTML = '<span class="text-wa-dark font-semibold">✓✓ Sent</span>';
+      } else {
+        statusCell.innerHTML = '<span class="text-red-500 font-semibold" title="'+reason.replace(/"/g,'')+'">✕ Failed</span>';
+      }
+      deliveryBody.appendChild(row);
+
+      if(sent < total) await new Promise(r=> setTimeout(r, perMsgDelay));
+    }
+
+    statusEl.textContent = `Completed — ${delivered} sent, ${failed} failed`;
+    toast(`Campaign finished: ${delivered} delivered, ${failed} failed`);
+    sendBtn.disabled = false;
+    refreshSendButtonState();
+  });
+
+  // ---- Contact CSV upload (parses the real uploaded file client-side) ----
+  let contactCount = 0;
+  let importedContacts = []; // [{name, phone, order, date}]
+  function updateContactCount(n){
+    contactCount = n;
+    document.getElementById('audienceCount').textContent = n.toLocaleString();
+    document.getElementById('queueTotal').textContent = n.toLocaleString();
+    document.getElementById('noContactsNote').style.display = n > 0 ? 'none' : 'inline';
+    refreshSendButtonState();
+  }
+  updateContactCount(0);
+
+  document.getElementById('csvInput').addEventListener('change', function(e){
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(evt){
+      const lines = evt.target.result.split(/\r?\n/).filter(l=>l.trim().length);
+      const rows = lines.slice(1).map(l=> l.split(','));
+      const body = document.getElementById('csvPreviewBody');
+      const previewRows = rows.slice(0, 10);
+      if(previewRows.length){
+        body.innerHTML = previewRows.map(r=> '<tr>' + [0,1,2,3].map(i=> '<td class="py-2.5">'+(r[i]?r[i].trim():'—')+'</td>').join('') + '</tr>').join('');
+      }
+      importedContacts = rows
+        .filter(r=> r[0] && r[1])
+        .map(r=> ({ name: r[0].trim(), phone: r[1].trim(), order: (r[2]||'').trim(), date: (r[3]||'').trim() }));
+      const count = importedContacts.length;
+      document.getElementById('csvStatus').textContent = '✓ Parsed ' + count + ' contacts from ' + file.name;
+      updateContactCount(count);
+      toast('Imported ' + count + ' contacts');
+    };
+    reader.readAsText(file);
+  });
+
+  // ---- Campaigns search + row actions ----
+  document.getElementById('campaignSearch').addEventListener('input', function(){
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('.camp-row').forEach(row=>{
+      row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  });
+  document.querySelectorAll('.camp-action').forEach(b=> b.addEventListener('click', ()=> toast(b.textContent + ' requires a backend to take effect')));
+  document.getElementById('newCampaignBtn').addEventListener('click', ()=> toast('Creating campaigns requires a backend to store them — this UI is ready to connect'));
+
+  // ---- Templates & Customer WhatsApp Live Preview ----
+  const tplEditor = document.getElementById('tplEditor');
+  const tplNameInput = document.getElementById('tplName');
+  const tplPreviewText = document.getElementById('customerTplPreviewText');
+  const sampleCustomer = { name: 'Alex', order: '#9842', date: 'Tomorrow' };
+
+  function updateCustomerPreview(){
+    if(!tplPreviewText || !tplEditor) return;
+    let text = tplEditor.value;
+    text = text.replaceAll('{{name}}', sampleCustomer.name);
+    text = text.replaceAll('{{order}}', sampleCustomer.order);
+    text = text.replaceAll('{{date}}', sampleCustomer.date);
+    tplPreviewText.textContent = text || 'Your customer message will preview here…';
+
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const timeEl = document.getElementById('customerTplTime');
+    if(timeEl) timeEl.textContent = timeStr;
+  }
+
+  if(tplEditor){
+    tplEditor.addEventListener('input', updateCustomerPreview);
+    updateCustomerPreview();
+  }
+
+  document.querySelectorAll('.tpl-var-btn').forEach(b=> b.addEventListener('click', ()=>{
+    tplEditor.value += (tplEditor.value.endsWith(' ')||tplEditor.value==='' ? '' : ' ') + b.dataset.var;
+    updateCustomerPreview();
+  }));
+
+  function updateTplCount(){
+    const count = document.querySelectorAll('#tplList .tpl-card').length;
+    const label = document.getElementById('tplCountLabel');
+    if(label) label.textContent = count + (count === 1 ? ' template' : ' templates');
+  }
+
+  function bindTplCardEvents(){
+    document.querySelectorAll('#tplList .tpl-card').forEach(card=>{
+      card.onclick = function(){
+        document.querySelectorAll('#tplList .tpl-card').forEach(c=>{
+          c.className = 'tpl-card border border-black/10 dark:border-white/10 rounded-xl p-3.5 hover:border-wa cursor-pointer transition bg-black/[0.01] dark:bg-white/[0.02]';
+          const tag = c.querySelector('.font-medium');
+          if(tag){ tag.textContent = 'Click to load'; tag.className = 'text-[10px] bg-black/5 dark:bg-white/10 px-2 py-0.5 rounded-full font-medium'; }
+        });
+        card.className = 'tpl-card border border-wa/40 dark:border-wa/40 rounded-xl p-3.5 hover:border-wa cursor-pointer transition bg-wa/5 dark:bg-wa/10';
+        const activeTag = card.querySelector('.font-medium');
+        if(activeTag){ activeTag.textContent = 'Active'; activeTag.className = 'text-[10px] bg-wa/20 text-wa-deep dark:text-wa px-2 py-0.5 rounded-full font-medium'; }
+
+        const title = card.dataset.name || card.querySelector('.font-semibold')?.textContent || '';
+        const body = card.dataset.body || card.querySelector('p')?.textContent || '';
+        if(tplNameInput) tplNameInput.value = title;
+        if(tplEditor) tplEditor.value = body;
+        updateCustomerPreview();
+        toast('Loaded template: ' + title);
+      };
+    });
+  }
+  bindTplCardEvents();
+
+  document.getElementById('saveTplBtn').addEventListener('click', ()=>{
+    const name = tplNameInput.value.trim();
+    const body = tplEditor.value.trim();
+    if(!name || !body){ toast('Enter a template name and message first'); return; }
+
+    document.querySelectorAll('#tplList .tpl-card').forEach(c=>{
+      c.className = 'tpl-card border border-black/10 dark:border-white/10 rounded-xl p-3.5 hover:border-wa cursor-pointer transition bg-black/[0.01] dark:bg-white/[0.02]';
+      const tag = c.querySelector('.font-medium');
+      if(tag){ tag.textContent = 'Click to load'; tag.className = 'text-[10px] bg-black/5 dark:bg-white/10 px-2 py-0.5 rounded-full font-medium'; }
+    });
+
+    const card = document.createElement('div');
+    card.className = 'tpl-card border border-wa/40 dark:border-wa/40 rounded-xl p-3.5 hover:border-wa cursor-pointer transition bg-wa/5 dark:bg-wa/10';
+    card.dataset.name = name;
+    card.dataset.body = body;
+    card.innerHTML = `<div class="flex items-center justify-between mb-1">
+      <span class="font-semibold text-sm text-wa-dark dark:text-wa">${name}</span>
+      <span class="text-[10px] bg-wa/20 text-wa-deep dark:text-wa px-2 py-0.5 rounded-full font-medium">Active</span>
+    </div>
+    <p class="text-xs text-ink/60 dark:text-white/60 line-clamp-2">${body}</p>`;
+    
+    document.getElementById('tplList').prepend(card);
+    bindTplCardEvents();
+    updateTplCount();
+    updateCustomerPreview();
+    toast('Template "' + name + '" saved');
+  });
+
+  // ---- Media drag & drop ----
+  const mediaDrop = document.getElementById('mediaDrop');
+  const mediaInput = document.getElementById('mediaInput');
+  const mediaGrid = document.getElementById('mediaGrid');
+  ['dragover','dragleave','drop'].forEach(evt=>{
+    mediaDrop.addEventListener(evt, (e)=>{
+      e.preventDefault();
+      mediaDrop.classList.toggle('drag', evt === 'dragover');
+      if(evt === 'drop') handleFiles(e.dataTransfer.files);
+    });
+  });
+  mediaInput.addEventListener('change', ()=> handleFiles(mediaInput.files));
+  function handleFiles(files){
+    Array.from(files).forEach(file=>{
+      const card = document.createElement('div');
+      card.className = 'rounded-xl border border-black/10 dark:border-white/10 p-3 bg-white dark:bg-white/5 text-center';
+      if(file.type.startsWith('image/')){
+        const url = URL.createObjectURL(file);
+        card.innerHTML = '<img src="'+url+'" class="w-full h-24 object-cover rounded-lg mb-2">' + '<div class="text-xs truncate">'+file.name+'</div>';
+      } else {
+        const icon = file.type.includes('pdf') ? '📄' : file.type.startsWith('video/') ? '🎬' : '📎';
+        card.innerHTML = '<div class="text-3xl mb-2">'+icon+'</div><div class="text-xs truncate">'+file.name+'</div>';
+      }
+      mediaGrid.prepend(card);
+    });
+    toast(files.length + ' file(s) added');
+  }
+
+  // ---- Delivery filters ----
+  document.querySelectorAll('.dfilter').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.dfilter').forEach(b=> b.classList.remove('active','bg-wa/15','text-wa-deep','dark:text-wa'));
+      btn.classList.add('active','bg-wa/15','text-wa-deep','dark:text-wa');
+      const f = btn.dataset.f;
+      document.querySelectorAll('#deliveryBody tr').forEach(row=>{
+        row.style.display = (f === 'all' || row.dataset.status === f) ? '' : 'none';
+      });
+    });
+  });
+
+  // ---- Users ----
+  document.getElementById('inviteBtn').addEventListener('click', ()=>{
+    const email = document.getElementById('inviteEmail').value.trim();
+    if(!email){ toast('Enter an email to invite'); return; }
+    toast('Inviting teammates requires a backend to send and track invites — this UI is ready to connect');
+    document.getElementById('inviteEmail').value = '';
+  });
+
+  // ---- API key: disabled until a real backend issues one (no fake key shown) ----
+</script>
+</body>
+</html>

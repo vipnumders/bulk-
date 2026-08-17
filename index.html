@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BulkChat Pro — Send Bulk WhatsApp Messages at Scale</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    colors: { wa:{DEFAULT:'#25D366',dark:'#1DA851',deep:'#075E54'}, ink:'#0B1410', paper:'#F6FAF8', bubble:'#DCF8C6' },
+    fontFamily: { display:['Sora','sans-serif'], body:['Inter','sans-serif'] },
+    borderRadius: { xl2:'20px' }
+  }}}
+</script>
+<style>
+  body{font-family:'Inter',sans-serif;}
+  h1,h2{font-family:'Sora',sans-serif;}
+</style>
+</head>
+<body class="bg-paper text-ink">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur border-b border-black/5">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-2 font-display font-extrabold text-xl">
+        <span class="w-9 h-9 rounded-xl bg-gradient-to-br from-wa to-wa-deep flex items-center justify-center text-white text-base">💬</span>
+        BulkChat <span class="text-wa-dark">Pro</span>
+      </div>
+      <a href="login.html" id="loginBtn" class="px-5 py-2.5 rounded-full text-sm font-semibold text-white bg-wa hover:bg-wa-dark shadow-lg shadow-wa/30 hover:-translate-y-0.5 transition">Login</a>
+    </div>
+  </nav>
+
+  <section class="relative overflow-hidden pt-20 pb-24">
+    <div class="absolute inset-0 -z-10 bg-[radial-gradient(1000px_500px_at_85%_-10%,rgba(37,211,102,0.16),transparent)]"></div>
+    <div class="max-w-4xl mx-auto px-6 text-center">
+      <h1 class="font-display font-extrabold leading-[1.05] text-4xl md:text-6xl mb-6">
+        Send Bulk <span class="text-wa-dark">WhatsApp Messages</span> at Scale
+      </h1>
+      <p class="text-lg text-ink/60 max-w-xl mx-auto mb-8">
+        Launch personalized WhatsApp campaigns, manage contacts, track delivery reports, and grow your business from one powerful platform.
+      </p>
+      <a href="login.html" class="inline-flex px-7 py-3.5 rounded-full font-semibold text-white bg-wa hover:bg-wa-dark shadow-lg shadow-wa/30 hover:-translate-y-0.5 transition">Login to Dashboard</a>
+    </div>
+  </section>
+
+  <section class="py-20 bg-white border-y border-black/5">
+    <div class="max-w-6xl mx-auto px-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-6 text-sm">
+      <div class="p-6 rounded-xl2 border border-black/10"><div class="text-2xl mb-3">📤</div><div class="font-semibold mb-1">Bulk Messaging</div><p class="text-ink/60">Thousands of personalized messages, automatically throttled.</p></div>
+      <div class="p-6 rounded-xl2 border border-black/10"><div class="text-2xl mb-3">📇</div><div class="font-semibold mb-1">Contact Upload</div><p class="text-ink/60">Import CSV/Excel with automatic field mapping.</p></div>
+      <div class="p-6 rounded-xl2 border border-black/10"><div class="text-2xl mb-3">✅</div><div class="font-semibold mb-1">Delivery Reports</div><p class="text-ink/60">Real-time sent, delivered, and failed tracking.</p></div>
+      <div class="p-6 rounded-xl2 border border-black/10"><div class="text-2xl mb-3">📊</div><div class="font-semibold mb-1">Analytics</div><p class="text-ink/60">Delivery rate, read rate, and campaign performance.</p></div>
+    </div>
+  </section>
+
+  <footer class="py-10 text-center text-xs text-ink/40">
+    © 2026 BulkChat Pro. Not affiliated with WhatsApp Inc. or Meta Platforms, Inc.
+  </footer>
+
+</body>
+</html>
